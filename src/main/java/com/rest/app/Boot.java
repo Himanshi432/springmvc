@@ -8,6 +8,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
         "com.rest.manager"
         ,"com.rest.clients"
         , "com.rest.controller"
+        , "com.mongodb"
         ,"com.rest.config"})
 @EnableSwagger2
 public class Boot {
