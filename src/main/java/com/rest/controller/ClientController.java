@@ -1,5 +1,6 @@
 package com.rest.controller;
 
+import com.mongodb.client.result.UpdateResult;
 import com.rest.dao.Client;
 import com.rest.manager.ClientManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +19,12 @@ public class ClientController {
 
     @RequestMapping(method = RequestMethod.POST,value = "/client")
     public String addClient(@RequestBody Client requestBody){
-        System.out.println("add client method");
         return clientManager.createClient(requestBody);
+    }
+
+    @RequestMapping(method = RequestMethod.PUT,value = "/client")
+    public UpdateResult updateClient(@RequestBody Client requestBody, @RequestParam(value = "client_id") String client_id){
+        return clientManager.updateClient(requestBody,client_id);
     }
 
 

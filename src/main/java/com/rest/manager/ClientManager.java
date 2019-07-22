@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
+import com.mongodb.client.result.UpdateResult;
 import com.mongodb.util.JSON;
 import com.rest.clients.MongoDBClient;
 import com.rest.dao.Client;
@@ -50,5 +51,16 @@ public class ClientManager {
         BasicDBObject dbDocument = (BasicDBObject) JSON.parse(gson.toJson(requestBody));
         mongoDBClient.insert(mongoCollection,new Document(dbDocument.toMap()));
         return "client added";
+    }
+
+    public UpdateResult updateClient(Client requestBody, String client_id){
+        MongoCollection<Document> mongoCollection = mongoDBClient
+                .buildMongoCollection(TPCConstants.DB_STRING,TPCConstants.MONGO_CLIENT_COLLECTION,TPCConstants.DB_NAME);
+        Gson gson = new Gson();
+        BasicDBObject dbUpdateDocument = (BasicDBObject) JSON.parse(gson.toJson(requestBody));
+        Document queryDocument = new Document();
+        System.out.println("PUT request client id is " + client_id);
+        queryDocument.put("client_id",client_id);
+        return mongoDBClient.update(mongoCollection,queryDocument,new Document(dbUpdateDocument.toMap()));
     }
 }

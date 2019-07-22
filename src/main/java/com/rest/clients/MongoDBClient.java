@@ -4,6 +4,8 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
+import com.mongodb.client.model.UpdateOptions;
+import com.mongodb.client.result.UpdateResult;
 import org.bson.Document;
 import org.springframework.stereotype.Service;
 
@@ -21,5 +23,9 @@ public class MongoDBClient {
 
     public void insert(MongoCollection<Document> mongoCollection,Document document){
         mongoCollection.insertOne(document);
+    }
+
+    public UpdateResult update(MongoCollection<Document> mongoCollection, Document queryDocument, Document updateDocument){
+        return mongoCollection.replaceOne(queryDocument,updateDocument,new UpdateOptions().upsert(false));
     }
 }
