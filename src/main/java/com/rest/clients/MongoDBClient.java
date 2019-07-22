@@ -18,4 +18,8 @@ public class MongoDBClient {
     public MongoCursor<Document> find(MongoCollection<Document> mongoCollection, BasicDBObject findQuery){
         return mongoCollection.find(findQuery).iterator();
     }
+
+    public void insert(MongoCollection<Document> mongoCollection,Document document){
+        mongoCollection.insertOne(document);
+    }
 }

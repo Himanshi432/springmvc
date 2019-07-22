@@ -1,9 +1,11 @@
 package com.rest.dao;
 
+import com.mongodb.BasicDBObject;
+import org.bson.Document;
+
 import java.util.Date;
 
-public class Client {
-
+public class Client extends BasicDBObject {
     String client_id;
     String client_name;
     String client_dob;

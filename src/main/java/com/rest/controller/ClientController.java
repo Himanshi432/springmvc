@@ -3,10 +3,7 @@ package com.rest.controller;
 import com.rest.dao.Client;
 import com.rest.manager.ClientManager;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class ClientController {
@@ -18,4 +15,12 @@ public class ClientController {
     public Client getClient(@RequestParam(value = "client_id",defaultValue = "client test") String client_id){
        return clientManager.getClientDetails(client_id);
     }
+
+    @RequestMapping(method = RequestMethod.POST,value = "/client")
+    public String addClient(@RequestBody Client requestBody){
+        System.out.println("add client method");
+        return clientManager.createClient(requestBody);
+    }
+
+
 }
