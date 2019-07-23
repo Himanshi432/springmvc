@@ -1,12 +1,10 @@
 package com.rest.controller;
 
+import com.mongodb.client.result.UpdateResult;
 import com.rest.dao.Role;
 import com.rest.manager.RoleManager;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class RoleController {
@@ -18,4 +16,11 @@ public class RoleController {
     public Role getRoles(@RequestParam(value = "role_id",defaultValue = "Role test") String role_id){
         return roleManager.getRoleDetails(role_id);
     }
+
+    @RequestMapping(method = RequestMethod.PUT,value = "/roles")
+    public UpdateResult updateRoleDetails(@RequestParam(value = "role_id",defaultValue = "Role test") String role_id,
+                                                      @RequestBody Role role_body){
+        return roleManager.updateRoleDetails(role_id,role_body);
+    }
+
 }

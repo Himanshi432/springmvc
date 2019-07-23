@@ -1,9 +1,12 @@
 package com.rest.manager;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
+import com.mongodb.client.result.UpdateResult;
+import com.mongodb.util.JSON;
 import com.rest.clients.MongoDBClient;
 import com.rest.dao.Role;
 import com.rest.utils.TPCConstants;
@@ -41,4 +44,17 @@ public class RoleManager {
     }
     //documents to json conversion
     //json to Role object
+
+
+    public UpdateResult updateRoleDetails(String role_id, Role role_body) {
+        MongoCollection<Document> mongoCollection = mongoDBClient.buildMongoCollection(TPCConstants.DB_STRING,TPCConstants.MONGO_ROLE_COLLECTION,TPCConstants.DB_NAME);
+        BasicDBObject basicDBObject = new BasicDBObject();
+        Document query = new Document();
+        query.put("role_id",role_id);
+        Gson gson = new Gson();
+        BasicDBObject dbUpdateDocument = (BasicDBObject) JSON.parse(gson.toJson(role_body));
+        Document update_role_document = new Document(dbUpdateDocument.toMap());
+
+        return mongoDBClient.update(mongoCollection,query,update_role_document);
+    }
 }
