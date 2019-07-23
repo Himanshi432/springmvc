@@ -5,6 +5,7 @@ import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.UpdateOptions;
+import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
 import org.bson.Document;
 import org.springframework.stereotype.Service;
@@ -27,5 +28,9 @@ public class MongoDBClient {
 
     public UpdateResult update(MongoCollection<Document> mongoCollection, Document queryDocument, Document updateDocument){
         return mongoCollection.replaceOne(queryDocument,updateDocument,new UpdateOptions().upsert(false));
+    }
+
+    public DeleteResult delete(MongoCollection<Document> mongoCollection, Document queryDocument){
+        return mongoCollection.deleteOne(queryDocument);
     }
 }

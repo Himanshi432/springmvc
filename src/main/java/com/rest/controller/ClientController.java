@@ -1,5 +1,6 @@
 package com.rest.controller;
 
+import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
 import com.rest.dao.Client;
 import com.rest.manager.ClientManager;
@@ -25,6 +26,11 @@ public class ClientController {
     @RequestMapping(method = RequestMethod.PUT,value = "/client")
     public UpdateResult updateClient(@RequestBody Client requestBody, @RequestParam(value = "client_id") String client_id){
         return clientManager.updateClient(requestBody,client_id);
+    }
+
+    @RequestMapping(method = RequestMethod.DELETE,value = "/client")
+    public DeleteResult DeleteClient(@RequestParam(value = "client_id") String client_id){
+        return clientManager.deleteClient(client_id);
     }
 
 

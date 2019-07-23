@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
+import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
 import com.mongodb.util.JSON;
 import com.rest.clients.MongoDBClient;
@@ -63,4 +64,13 @@ public class ClientManager {
         queryDocument.put("client_id",client_id);
         return mongoDBClient.update(mongoCollection,queryDocument,new Document(dbUpdateDocument.toMap()));
     }
+
+    public DeleteResult deleteClient(String client_id){
+        MongoCollection<Document> mongoCollection = mongoDBClient
+                .buildMongoCollection(TPCConstants.DB_STRING,TPCConstants.MONGO_CLIENT_COLLECTION,TPCConstants.DB_NAME);
+        Document queryDocument = new Document();
+        queryDocument.put("client_id",client_id);
+        return mongoDBClient.delete(mongoCollection,queryDocument);
+    }
+
 }
