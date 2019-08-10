@@ -10,9 +10,11 @@ import com.mongodb.client.result.UpdateResult;
 import com.mongodb.util.JSON;
 import com.rest.clients.MongoDBClient;
 import com.rest.dao.Address;
+import com.rest.exceptions.AddressException;
 import com.rest.utils.TPCConstants;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -26,12 +28,20 @@ public class AddressManager {
     @Autowired
     ObjectMapper objectMapper;
 
-    public Address getAddressDetails(String address_id){
+    public ResponseEntity getAddressDetails(String address_id) throws AddressException {
+
+        if(address_id == null || address_id == "")
+        throw new AddressException("Address id cannot be null");
+
+        System.out.println("address_id="+address_id);
         MongoCollection<Document> mongoCollection = mongoDBClient
                 .buildMongoCollection(TPCConstants.DB_STRING,TPCConstants.MONGO_ADDRESS_COLLECTION,TPCConstants.DB_NAME);
         BasicDBObject getQuery = new BasicDBObject();
         getQuery.put("address_id",address_id);
         MongoCursor<Document> mongoCursor = mongoDBClient.find(mongoCollection,getQuery);
+        if(!mongoCursor.hasNext()) {
+            throw new AddressException("No rows found");
+        }
         Document result = mongoCursor.next();
         Address foundaddress = null;
         try {
@@ -39,7 +49,7 @@ public class AddressManager {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return foundaddress;
+        return ResponseEntity.ok(foundaddress);
     }
 
     public String addNewAddress(Address newaddressbody){

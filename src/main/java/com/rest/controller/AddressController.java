@@ -3,8 +3,10 @@ package com.rest.controller;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
 import com.rest.dao.Address;
+import com.rest.exceptions.AddressException;
 import com.rest.manager.AddressManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -14,8 +16,18 @@ public class AddressController {
     AddressManager addressManager;
 
     @RequestMapping(method = RequestMethod.GET,value= "/address")
-    public Address getAddress(@RequestParam(value = "address_id",defaultValue ="NOIDA") String address_id){
-        return addressManager.getAddressDetails(address_id);
+    public ResponseEntity getAddress(@RequestParam(value = "address_id",defaultValue ="NOIDA77") String address_id) throws AddressException {
+        ResponseEntity response = null;
+        try {
+            response = addressManager.getAddressDetails(address_id);
+        }
+            catch (AddressException e) {
+                return ResponseEntity.status(400).body(e.getMessage());
+            }
+            catch (Exception e) {
+                return ResponseEntity.status(500).body(e.getMessage());
+            }
+        return response;
     }
 
     @RequestMapping(method = RequestMethod.POST,value= "/address")
