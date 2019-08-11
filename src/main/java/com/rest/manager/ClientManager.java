@@ -10,12 +10,17 @@ import com.mongodb.client.result.UpdateResult;
 import com.mongodb.util.JSON;
 import com.rest.clients.MongoDBClient;
 import com.rest.dao.Client;
+import com.rest.exceptions.AddressException;
+import com.rest.exceptions.DbExceptions;
 import com.rest.utils.TPCConstants;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+
+import static com.rest.utils.TPCConstants.*;
 
 @Service
 public class ClientManager {
@@ -26,8 +31,10 @@ public class ClientManager {
     @Autowired
     ObjectMapper objectMapper;
 
-    public Client getClientDetails(String client_id){
+    public ResponseEntity getClientDetails(String client_id) throws DbExceptions{
         //Get client data based on client id from DB
+        if(client_id == null || client_id == "")
+            throw new DbExceptions(MONGO_ID_NULL);
         MongoCollection<Document> mongoCollection = mongoDBClient
                 .buildMongoCollection(TPCConstants.DB_STRING,TPCConstants.MONGO_CLIENT_COLLECTION,TPCConstants.DB_NAME);
         BasicDBObject findQuery = new BasicDBObject();
@@ -37,24 +44,24 @@ public class ClientManager {
         Client client = null;
         try {
             client = objectMapper.readValue(result.toJson(),Client.class);
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             e.printStackTrace();
         }
-        //Wrap the response to client DAO object
-        //return DAO object
-        return client;
+        //Wrap the response to client DAO object and return DAO object
+        return ResponseEntity.ok(client);
     }
 
-    public String createClient(Client requestBody){
+    public ResponseEntity createClient(Client requestBody) throws DbExceptions {
         MongoCollection<Document> mongoCollection = mongoDBClient
                 .buildMongoCollection(TPCConstants.DB_STRING,TPCConstants.MONGO_CLIENT_COLLECTION,TPCConstants.DB_NAME);
         Gson gson = new Gson();
         BasicDBObject dbDocument = (BasicDBObject) JSON.parse(gson.toJson(requestBody));
         mongoDBClient.insert(mongoCollection,new Document(dbDocument.toMap()));
-        return "client added";
+        return ResponseEntity.ok(MONGO_CREATED);
     }
 
-    public UpdateResult updateClient(Client requestBody, String client_id){
+    public ResponseEntity updateClient(Client requestBody, String client_id) throws DbExceptions{
         MongoCollection<Document> mongoCollection = mongoDBClient
                 .buildMongoCollection(TPCConstants.DB_STRING,TPCConstants.MONGO_CLIENT_COLLECTION,TPCConstants.DB_NAME);
         Gson gson = new Gson();
@@ -62,15 +69,15 @@ public class ClientManager {
         Document queryDocument = new Document();
         System.out.println("PUT request client id is " + client_id);
         queryDocument.put("client_id",client_id);
-        return mongoDBClient.update(mongoCollection,queryDocument,new Document(dbUpdateDocument.toMap()));
+        return ResponseEntity.ok(mongoDBClient.update(mongoCollection,queryDocument,new Document(dbUpdateDocument.toMap())));
     }
 
-    public DeleteResult deleteClient(String client_id){
+    public ResponseEntity deleteClient(String client_id) throws DbExceptions{
         MongoCollection<Document> mongoCollection = mongoDBClient
                 .buildMongoCollection(TPCConstants.DB_STRING,TPCConstants.MONGO_CLIENT_COLLECTION,TPCConstants.DB_NAME);
         Document queryDocument = new Document();
         queryDocument.put("client_id",client_id);
-        return mongoDBClient.delete(mongoCollection,queryDocument);
+        return ResponseEntity.ok(mongoDBClient.delete(mongoCollection,queryDocument));
     }
 
 }

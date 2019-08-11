@@ -9,12 +9,17 @@ import com.mongodb.client.result.UpdateResult;
 import com.mongodb.util.JSON;
 import com.rest.clients.MongoDBClient;
 import com.rest.dao.Role;
+import com.rest.exceptions.DbExceptions;
 import com.rest.utils.TPCConstants;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+
+import static com.rest.utils.TPCConstants.API_NO_MATCH_FOUND;
+import static com.rest.utils.TPCConstants.MONGO_NO_MATCH_FOUND;
 
 @Service
 public class RoleManager {
@@ -27,7 +32,7 @@ public class RoleManager {
     ObjectMapper objectMapper;
 
 
-    public Role getRoleDetails(String role_id) {
+    public ResponseEntity getRoleDetails(String role_id) throws DbExceptions {
         MongoCollection<Document> mongoCollection = mongoDBClient.buildMongoCollection(TPCConstants.DB_STRING,TPCConstants.MONGO_ROLE_COLLECTION,TPCConstants.DB_NAME);
         BasicDBObject basicDBObject = new BasicDBObject();
         basicDBObject.put("role_id",role_id);
@@ -40,13 +45,10 @@ public class RoleManager {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return role;
+        return ResponseEntity.ok(role);
     }
-    //documents to json conversion
-    //json to Role object
 
-
-    public UpdateResult updateRoleDetails(String role_id, Role role_body) {
+    public ResponseEntity updateRoleDetails(String role_id, Role role_body) throws DbExceptions {
         MongoCollection<Document> mongoCollection = mongoDBClient.buildMongoCollection(TPCConstants.DB_STRING,TPCConstants.MONGO_ROLE_COLLECTION,TPCConstants.DB_NAME);
         BasicDBObject basicDBObject = new BasicDBObject();
         Document query = new Document();
@@ -55,6 +57,6 @@ public class RoleManager {
         BasicDBObject dbUpdateDocument = (BasicDBObject) JSON.parse(gson.toJson(role_body));
         Document update_role_document = new Document(dbUpdateDocument.toMap());
 
-        return mongoDBClient.update(mongoCollection,query,update_role_document);
+        return ResponseEntity.ok(mongoDBClient.update(mongoCollection,query,update_role_document));
     }
 }

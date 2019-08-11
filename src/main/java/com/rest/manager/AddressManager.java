@@ -3,6 +3,7 @@ package com.rest.manager;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.mongodb.BasicDBObject;
+import com.mongodb.DBObject;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.result.DeleteResult;
@@ -11,6 +12,7 @@ import com.mongodb.util.JSON;
 import com.rest.clients.MongoDBClient;
 import com.rest.dao.Address;
 import com.rest.exceptions.AddressException;
+import com.rest.exceptions.DbExceptions;
 import com.rest.utils.TPCConstants;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +20,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+
+import static com.rest.utils.TPCConstants.*;
 
 @Service
 public class AddressManager {
@@ -28,10 +32,10 @@ public class AddressManager {
     @Autowired
     ObjectMapper objectMapper;
 
-    public ResponseEntity getAddressDetails(String address_id) throws AddressException {
+    public ResponseEntity getAddressDetails(String address_id) throws AddressException,DbExceptions {
 
         if(address_id == null || address_id == "")
-        throw new AddressException("Address id cannot be null");
+        throw new AddressException(MONGO_ID_NULL);
 
         System.out.println("address_id="+address_id);
         MongoCollection<Document> mongoCollection = mongoDBClient
@@ -40,7 +44,7 @@ public class AddressManager {
         getQuery.put("address_id",address_id);
         MongoCursor<Document> mongoCursor = mongoDBClient.find(mongoCollection,getQuery);
         if(!mongoCursor.hasNext()) {
-            throw new AddressException("No rows found");
+            throw new AddressException(MONGO_NO_MATCH_FOUND);
         }
         Document result = mongoCursor.next();
         Address foundaddress = null;
@@ -52,32 +56,31 @@ public class AddressManager {
         return ResponseEntity.ok(foundaddress);
     }
 
-    public String addNewAddress(Address newaddressbody){
+    public ResponseEntity addNewAddress(Address newaddressbody) throws DbExceptions {
         MongoCollection<Document> mongoCollection = mongoDBClient
-                .buildMongoCollection(TPCConstants.DB_STRING,TPCConstants.MONGO_ADDRESS_COLLECTION,TPCConstants.DB_NAME);
+                .buildMongoCollection(TPCConstants.DB_STRING, TPCConstants.MONGO_ADDRESS_COLLECTION, TPCConstants.DB_NAME);
         Gson gson = new Gson();
         BasicDBObject dbDocument = (BasicDBObject) JSON.parse(gson.toJson(newaddressbody));
-        mongoDBClient.insert(mongoCollection,new Document(dbDocument.toMap()));
-        return "New address added";
+        mongoDBClient.insert(mongoCollection, new Document(dbDocument.toMap()));
+        return ResponseEntity.ok(MONGO_CREATED);
     }
 
-    public UpdateResult updateAddress(String address_id, Address addressbody){
+    public ResponseEntity updateAddress(String address_id, Address addressbody) throws DbExceptions{
         MongoCollection<Document> mongoCollection = mongoDBClient
                 .buildMongoCollection(TPCConstants.DB_STRING,TPCConstants.MONGO_ADDRESS_COLLECTION,TPCConstants.DB_NAME);
         Gson gson = new Gson();
         BasicDBObject dbDocument = (BasicDBObject) JSON.parse(gson.toJson(addressbody));
         Document querydocument = new Document();
         querydocument.put("address_id",address_id);
-        return mongoDBClient.update(mongoCollection,querydocument,new Document(dbDocument.toMap()));
-
+        return ResponseEntity.ok(mongoDBClient.update(mongoCollection,querydocument,new Document(dbDocument.toMap())));
     }
 
-    public DeleteResult deleteAddress(String address_id){
+    public ResponseEntity deleteAddress(String address_id) throws DbExceptions{
         MongoCollection<Document> mongoCollection = mongoDBClient
                 .buildMongoCollection(TPCConstants.DB_STRING,TPCConstants.MONGO_ADDRESS_COLLECTION,TPCConstants.DB_NAME);
         Document querydocument = new Document();
         querydocument.put("address_id",address_id);
-        return mongoDBClient.delete(mongoCollection,querydocument);
+        return ResponseEntity.ok(mongoDBClient.delete(mongoCollection,querydocument));
 
     }
 }
